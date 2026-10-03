@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zr kaizenX - 3D Multi-Photo Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Impact&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #e6eef8;
+            --text-color: #2d3748;
+            --text-muted: #718096;
+            --shadow-light: #ffffff;
+            --shadow-dark: #b8c6d9;
+            --shadow-dark-inset: #a3b1c6;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+        }
+
+        .dark {
+            --bg-color: #1a202c;
+            --text-color: #edf2f7;
+            --text-muted: #a0aec0;
+            --shadow-light: #242c3d;
+            --shadow-dark: #10141b;
+            --shadow-dark-inset: #0d1117;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #f87171;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* 3D Soft Neumorphic Elements */
+        .neu-flat {
+            background: var(--bg-color);
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .neu-pressed {
+            background: var(--bg-color);
+            box-shadow: inset 5px 5px 10px var(--shadow-dark-inset), inset -5px -5px 10px var(--shadow-light);
+            border-radius: 16px;
+        }
+
+        .neu-btn {
+            background: var(--bg-color);
+            box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+            border-radius: 14px;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .neu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light);
+        }
+
+        .neu-btn:active, .neu-btn.active {
+            transform: translateY(0);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark-inset), inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .neu-btn-accent {
+            background: var(--accent);
+            color: #ffffff;
+            box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+            border-radius: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .neu-btn-accent:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .neu-btn-accent:active {
+            transform: translateY(0);
+            box-shadow: inset 3px 3px 6px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(255,255,255,0.2);
+        }
+
+        .neu-input {
+            background: var(--bg-color);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark-inset), inset -4px -4px 8px var(--shadow-light);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+        }
+
+        .neu-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Toggle Switch */
+        .neu-switch {
+            width: 60px;
+            height: 30px;
+            border-radius: 20px;
+            background: var(--bg-color);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark-inset), inset -3px -3px 6px var(--shadow-light);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .neu-switch-handle {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .dark .neu-switch-handle {
+            transform: translateX(30px);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--shadow-dark-inset);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="w-full p-4 sm:p-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center neu-flat p-4 px-6">
+            <!-- Website Logo & Name -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 neu-pressed flex items-center justify-center text-blue-500 font-black text-2xl">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        Zr kaizenX
+                    </h1>
+                    <p class="text-[10px] font-extrabold tracking-widest text-gray-500 uppercase -mt-1">
+                        3D Multi-Photo Studio
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center gap-4">
+                <!-- Light / Dark Theme Switch -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold tracking-wider opacity-70 hidden sm:inline">NORMAL MODE</span>
+                    <div id="themeToggle" class="neu-switch" title="Light/Dark Mode Badlein">
+                        <div class="neu-switch-handle"></div>
+                    </div>
+                </div>
+
+                <!-- User Profile Display -->
+                <div id="userProfile" class="hidden items-center gap-3 border-l pl-4 border-gray-300 dark:border-gray-700">
+                    <div class="flex items-center gap-2">
+                        <div id="roleBadge" class="px-2.5 py-1 text-[11px] font-extrabold rounded-full neu-flat text-blue-600">
+                            ADMIN
+                        </div>
+                        <span id="userNameDisplay" class="font-semibold text-sm hidden sm:inline">Admin</span>
+                    </div>
+                    <button id="logoutBtn" class="neu-btn px-3 py-1.5 text-xs font-semibold text-rose-500 hover:text-rose-600 flex items-center gap-1.5" title="Logout karein">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden sm:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6">
+
+        <!-- LOGIN VIEW -->
+        <section id="loginView" class="w-full max-w-md transition-all duration-300">
+            <div class="neu-flat p-8 sm:p-10 flex flex-col gap-6">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto neu-pressed rounded-full flex items-center justify-center text-blue-500 text-3xl mb-4">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h2 class="text-2xl font-black tracking-tight">Zr kaizenX Login</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Apna Role Chuniye Aur Login Karein</p>
+                </div>
+
+                <!-- Role Selector -->
+                <div class="grid grid-cols-2 gap-3 neu-pressed p-1.5 rounded-xl">
+                    <button type="button" id="roleBtnAdmin" class="neu-btn py-2.5 text-xs font-bold rounded-lg active">
+                        <i class="fa-solid fa-shield-halved mr-1"></i> Admin
+                    </button>
+                    <button type="button" id="roleBtnUser" class="neu-btn py-2.5 text-xs font-bold rounded-lg">
+                        <i class="fa-solid fa-user mr-1"></i> User
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="flex flex-col gap-4" novalidate>
+                    <div>
+                        <label id="loginIdentifierLabel" class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">Username</label>
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-user absolute left-4 text-gray-400"></i>
+                            <input type="text" id="usernameInput" autocomplete="username" placeholder="Username..." class="neu-input w-full pl-11 pr-4 py-3 rounded-xl text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">Password</label>
+                        <div class="relative flex items-center">
+                            <i class="fa-solid fa-key absolute left-4 text-gray-400"></i>
+                            <input type="password" id="passwordInput" autocomplete="current-password" placeholder="Password..." class="neu-input w-full pl-11 pr-4 py-3 rounded-xl text-sm">
+                        </div>
+                    </div>
+
+                    <div id="loginError" class="hidden text-xs p-3.5 rounded-xl neu-pressed text-red-500 dark:text-red-400 flex items-center gap-2.5" role="alert" aria-live="polite"><i class="fa-solid fa-circle-exclamation text-xl flex-shrink-0"></i><span id="loginErrorText"></span></div>
+
+                    <div id="adminRoleNotice" class="text-xs p-3.5 rounded-xl neu-pressed text-blue-600 dark:text-blue-400 flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-info text-xl flex-shrink-0"></i>
+                        <span><b>Admin Option:</b> Aap kitni bhi photos add aur remove kar sakte hain!</span>
+                    </div>
+
+                    <button type="submit" class="neu-btn-accent py-3.5 px-6 font-bold text-sm tracking-wide flex items-center justify-center gap-2 mt-2">
+                        <span>LOGIN TO WEBSITE</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section id="mainAppView" class="w-full max-w-7xl hidden transition-all duration-300">
+            
+            <!-- ADMIN MULTI-PHOTO STUDIO -->
+            <div id="adminStudio" class="mb-10 transition-all">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 px-2">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <h2 class="text-2xl font-black tracking-tight">Admin Unlimited Photo Studio</h2>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Aap jitni chahe utni photos upload kar sakte hain, text add kar sakte hain aur jab chahe remove kar sakte hain.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <button id="clearUnpublishedBtn" class="neu-btn px-4 py-2.5 text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> Clear Studio
+                        </button>
+                        <button id="publishAllPhotosBtn" class="neu-btn-accent px-5 py-2.5 text-xs font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Gallery Mein Publish Karein
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Multiple Photo Drag & Drop Upload Zone -->
+                <div class="neu-flat p-6 mb-8">
+                    <div id="dropZone" class="neu-pressed p-8 rounded-2xl text-center cursor-pointer border-2 border-dashed border-transparent hover:border-blue-400 transition-all">
+                        <input type="file" id="imageInput" accept="image/*" multiple class="hidden">
+                        <div class="w-16 h-16 neu-flat mx-auto rounded-full flex items-center justify-center text-blue-500 text-2xl mb-3">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <h3 class="font-bold text-base">Ek Ya Utne Se Jyada Photos Upload Karein</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Files drag karein ya click karke kitni bhi photos select karein (Multiple selection supported)</p>
+                        <button class="mt-4 neu-btn px-5 py-2 text-xs font-bold text-blue-600 inline-flex items-center gap-2">
+                            <i class="fa-solid fa-folder-open"></i> Choose Photos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Photo Batch Section -->
+                <div class="mb-4 flex justify-between items-center px-2">
+                    <h3 class="font-extrabold text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-images text-blue-500"></i> Active Studio Batch (<span id="activeBatchCount">0</span>)
+                    </h3>
+                    <span class="text-xs opacity-70 font-semibold">Har photo ke upar aur niche likhne ka option</span>
+                </div>
+
+                <!-- Multi-Photo Cards Container -->
+                <div id="multiPhotoContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Dynamic Editor Cards Inserted Here -->
+                </div>
+
+                <div id="emptyStudioMsg" class="neu-flat p-12 text-center">
+                    <i class="fa-solid fa-photo-film text-4xl text-gray-400 mb-3"></i>
+                    <p class="font-bold text-gray-500">Abhi studio mein koi photo nahi hai.</p>
+                    <p class="text-xs text-gray-400 mt-1">Upar diye gaye box par click karke photos add karein!</p>
+                </div>
+            </div>
+
+            <!-- REGULAR USER NOTICE -->
+            <div id="userPermissionNotice" class="hidden neu-flat p-6 mb-8 text-center flex-col items-center gap-3">
+                <div class="w-12 h-12 neu-pressed rounded-full flex items-center justify-center text-amber-500 text-xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Regular User Access</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-md mx-auto">
+                        Aap <b>Regular User</b> ke taur par login hain. Photo add ya remove karne ke rights sirf <b>Admin (Zr kaizenX)</b> ke paas hain. Aap published photos dekh aur download kar sakte hain!
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6 mt-8">
+                <div class="flex justify-between items-center px-2">
+                    <div>
+                        <h2 class="text-2xl font-black tracking-tight">Zr kaizenX Gallery</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Sabhi Published Photos Yahan Hain</p>
+                    </div>
+                    <span id="galleryCountBadge" class="text-xs font-bold neu-pressed px-3.5 py-1.5 rounded-full">0 Photos</span>
+                </div>
+
+                <!-- Published Gallery Cards Grid -->
+                <div id="publishedGalleryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Gallery Cards Load Here -->
+                </div>
+
+                <div id="emptyGalleryMsg" class="hidden text-center neu-flat p-12">
+                    <i class="fa-solid fa-images text-4xl text-gray-400 mb-3"></i>
+                    <p class="font-bold text-gray-500">Gallery mein abhi koi photo nahi hai.</p>
+                    <p class="text-xs text-gray-400 mt-1">Admin upar se photos add karke gallery mein publish kar sakte hain!</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="w-full text-center p-6 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-300 dark:border-gray-800">
+        <p>© 2026 <b>Zr kaizenX</b> • Neumorphic 3D Multi-Photo Web App</p>
+    </footer>
+
+    <script>
+        // Global App State
+        let currentUser = null; // { name: string, role: 'admin' | 'user' }
+        let currentRoleSelection = 'admin';
+
+        // Active Photos in Studio Batch (Admin Only)
+        let activeStudioPhotos = []; // array of { id, imgElement, topText, bottomText, textColor, strokeColor, fontSize, fontStyle }
+
+        // Persistent Published Gallery (Saved in localStorage)
+        let galleryData = JSON.parse(localStorage.getItem('zr_kaizenx_gallery_v2')) || [];
+
+        // DOM Elements
+        const themeToggle = document.getElementById('themeToggle');
+        const loginView = document.getElementById('loginView');
+        const mainAppView = document.getElementById('mainAppView');
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('usernameInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const roleBtnAdmin = document.getElementById('roleBtnAdmin');
+        const roleBtnUser = document.getElementById('roleBtnUser');
+        const userProfile = document.getElementById('userProfile');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const roleBadge = document.getElementById('roleBadge');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminStudio = document.getElementById('adminStudio');
+        const userPermissionNotice = document.getElementById('userPermissionNotice');
+        const adminRoleNotice = document.getElementById('adminRoleNotice');
+
+        // Studio DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const imageInput = document.getElementById('imageInput');
+        const multiPhotoContainer = document.getElementById('multiPhotoContainer');
+        const emptyStudioMsg = document.getElementById('emptyStudioMsg');
+        const activeBatchCount = document.getElementById('activeBatchCount');
+        const publishAllPhotosBtn = document.getElementById('publishAllPhotosBtn');
+        const clearUnpublishedBtn = document.getElementById('clearUnpublishedBtn');
+
+        // Gallery DOM Elements
+        const publishedGalleryGrid = document.getElementById('publishedGalleryGrid');
+        const galleryCountBadge = document.getElementById('galleryCountBadge');
+        const emptyGalleryMsg = document.getElementById('emptyGalleryMsg');
+
+        // Theme Toggle Handler
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+        });
+
+        // Login UI helpers
+        const loginIdentifierLabel = document.getElementById('loginIdentifierLabel');
+        const loginError = document.getElementById('loginError');
+        const loginErrorText = document.getElementById('loginErrorText');
+
+        function clearLoginError() {
+            loginError.classList.add('hidden');
+            loginErrorText.textContent = '';
+        }
+
+        function showLoginError(message) {
+            loginErrorText.textContent = message;
+            loginError.classList.remove('hidden');
+        }
+
+        function setLoginMode(role) {
+            currentRoleSelection = role;
+            clearLoginError();
+            usernameInput.value = '';
+            passwordInput.value = '';
+            if (role === 'admin') {
+                loginIdentifierLabel.textContent = 'Username';
+                usernameInput.placeholder = 'Username...';
+                usernameInput.setAttribute('inputmode', 'text');
+                adminRoleNotice.classList.remove('hidden');
+                roleBtnAdmin.classList.add('active');
+                roleBtnUser.classList.remove('active');
+            } else {
+                loginIdentifierLabel.textContent = 'GMAIL / EMAIL';
+                usernameInput.placeholder = 'Gmail / Email...';
+                usernameInput.setAttribute('inputmode', 'email');
+                adminRoleNotice.classList.add('hidden');
+                roleBtnUser.classList.add('active');
+                roleBtnAdmin.classList.remove('active');
+            }
+        }
+
+        roleBtnAdmin.addEventListener('click', () => setLoginMode('admin'));
+        roleBtnUser.addEventListener('click', () => setLoginMode('user'));
+
+        // Login Handler
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            clearLoginError();
+
+            const identifier = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!identifier || !password) {
+                showLoginError('Username/Email और Password दोनों भरें।');
+                return;
+            }
+
+            if (currentRoleSelection === 'admin') {
+                if (identifier !== 'zr kaizenX' || password !== 'kaizenX 99') {
+                    showLoginError('Username या Password गलत है। सही Admin Username और Password डालकर फिर से Login करें।');
+                    usernameInput.value = '';
+                    passwordInput.value = '';
+                    usernameInput.focus();
+                    return;
+                }
+            } else {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(identifier)) {
+                    showLoginError('सही Gmail / Email Address डालें और फिर से Login करें।');
+                    usernameInput.value = '';
+                    passwordInput.value = '';
+                    usernameInput.focus();
+                    return;
+                }
+            }
+
+            currentUser = {
+                name: currentRoleSelection === 'admin' ? 'Zr kaizenX' : identifier,
+                role: currentRoleSelection
+            };
+
+            userNameDisplay.textContent = currentUser.name;
+            roleBadge.textContent = currentUser.role.toUpperCase();
+            roleBadge.className = currentUser.role === 'admin'
+                ? 'px-2.5 py-1 text-[11px] font-extrabold rounded-full neu-flat text-blue-600 dark:text-blue-400'
+                : 'px-2.5 py-1 text-[11px] font-extrabold rounded-full neu-flat text-emerald-600 dark:text-emerald-400';
+
+            loginView.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                loginView.classList.add('hidden');
+                loginView.classList.remove('opacity-0', 'scale-95');
+                mainAppView.classList.remove('hidden');
+                userProfile.classList.remove('hidden');
+                userProfile.classList.add('flex');
+
+                if (currentUser.role === 'admin') {
+                    adminStudio.classList.remove('hidden');
+                    userPermissionNotice.classList.add('hidden');
+                } else {
+                    adminStudio.classList.add('hidden');
+                    userPermissionNotice.classList.remove('hidden');
+                    userPermissionNotice.classList.add('flex');
+                }
+                renderPublishedGallery();
+            }, 250);
+        });
+
+        // Start with empty Admin fields; credentials are never displayed.
+        setLoginMode('admin');
+
+        // Logout Handler
+        logoutBtn.addEventListener('click', () => {
+            currentUser = null;
+            userProfile.classList.add('hidden');
+            userProfile.classList.remove('flex');
+            mainAppView.classList.add('hidden');
+            loginView.classList.remove('hidden');
+            loginView.classList.remove('opacity-0', 'scale-95');
+            setLoginMode('admin');
+        });
+
+        // Dropzone & Unlimited File Upload Processing
+        dropZone.addEventListener('click', () => {
+            if (currentUser?.role === 'admin') imageInput.click();
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                processUploadedFiles(Array.from(e.target.files));
+                imageInput.value = '';
+            }
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-500');
+        });
+
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500'));
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500');
+            if (currentUser?.role === 'admin' && e.dataTransfer.files.length > 0) {
+                processUploadedFiles(Array.from(e.dataTransfer.files));
+            }
+        });
+
+        // Process incoming array of photos
+        function processUploadedFiles(files) {
+            const imageFiles = files.filter(f => f.type.startsWith('image/'));
+
+            imageFiles.forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const newStudioPhoto = {
+                            id: Date.now() + Math.random(),
+                            imgElement: img,
+                            topText: 'ZR KAIZENX TOP TEXT',
+                            bottomText: 'NICHE KA TEXT HERE',
+                            textColor: '#ffffff',
+                            strokeColor: '#000000',
+                            fontSize: 28,
+                            fontStyle: 'Impact'
+                        };
+                        activeStudioPhotos.push(newStudioPhoto);
+                        renderStudioBatch();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Render Active Studio Cards
+        function renderStudioBatch() {
+            multiPhotoContainer.innerHTML = '';
+            activeBatchCount.textContent = activeStudioPhotos.length;
+
+            if (activeStudioPhotos.length === 0) {
+                emptyStudioMsg.classList.remove('hidden');
+                return;
+            } else {
+                emptyStudioMsg.classList.add('hidden');
+            }
+
+            activeStudioPhotos.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'neu-flat p-6 flex flex-col gap-5 relative';
+                card.id = `studio-card-${item.id}`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b pb-3 border-gray-200 dark:border-gray-700">
+                        <span class="font-black text-xs uppercase tracking-wider text-blue-500 flex items-center gap-1.5">
+                            <i class="fa-solid fa-photo-film"></i> Photo #${idx + 1}
+                        </span>
+                        <button onclick="removeStudioPhoto(${item.id})" class="text-xs font-bold text-rose-500 hover:underline flex items-center gap-1" title="Is Photo Ko Remove Karein">
+                            <i class="fa-solid fa-trash-can"></i> Photo Remove
+                        </button>
+                    </div>
+
+                    <!-- Canvas Preview -->
+                    <div class="neu-pressed p-3 rounded-2xl flex justify-center items-center overflow-hidden">
+                        <canvas id="canvas-${item.id}" class="max-w-full h-auto rounded-xl shadow-sm"></canvas>
+                    </div>
+
+                    <!-- Inputs for Top and Bottom Text -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-80">Upar Likhne Ka Text (Top Text)</label>
+                            <input type="text" value="${item.topText}" oninput="updateStudioPhotoProp(${item.id}, 'topText', this.value)" placeholder="Upar kya likhna hai..." class="neu-input w-full px-3 py-2 rounded-xl text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-80">Niche Likhne Ka Text (Bottom Text)</label>
+                            <input type="text" value="${item.bottomText}" oninput="updateStudioPhotoProp(${item.id}, 'bottomText', this.value)" placeholder="Niche kya likhna hai..." class="neu-input w-full px-3 py-2 rounded-xl text-xs">
+                        </div>
+                    </div>
+
+                    <!-- Typography & Color Settings -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase mb-1 opacity-80">Text Color</label>
+                            <input type="color" value="${item.textColor}" oninput="updateStudioPhotoProp(${item.id}, 'textColor', this.value)" class="w-full h-8 rounded-lg cursor-pointer neu-btn p-0.5">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase mb-1 opacity-80">Outline</label>
+                            <input type="color" value="${item.strokeColor}" oninput="updateStudioPhotoProp(${item.id}, 'strokeColor', this.value)" class="w-full h-8 rounded-lg cursor-pointer neu-btn p-0.5">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase mb-1 opacity-80">Font Size (${item.fontSize}px)</label>
+                            <input type="range" min="16" max="60" value="${item.fontSize}" oninput="updateStudioPhotoProp(${item.id}, 'fontSize', this.value)" class="w-full accent-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase mb-1 opacity-80">Font Family</label>
+                            <select onchange="updateStudioPhotoProp(${item.id}, 'fontStyle', this.value)" class="neu-input w-full py-1.5 px-2 rounded-lg text-[11px]">
+                                <option value="Impact" ${item.fontStyle === 'Impact' ? 'selected' : ''}>Impact</option>
+                                <option value="Montserrat" ${item.fontStyle === 'Montserrat' ? 'selected' : ''}>Montserrat</option>
+                                <option value="Inter" ${item.fontStyle === 'Inter' ? 'selected' : ''}>Inter</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="publishSinglePhoto(${item.id})" class="neu-btn-accent py-2.5 px-4 font-bold text-xs rounded-xl flex-1 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Single Photo Gallery Mein Bhejein
+                        </button>
+                    </div>
+                `;
+
+                multiPhotoContainer.appendChild(card);
+                setTimeout(() => drawStudioCanvas(item), 10);
+            });
+        }
+
+        // Draw Canvas with text overlays
+        function drawStudioCanvas(item) {
+            const canvas = document.getElementById(`canvas-${item.id}`);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const maxWidth = 600;
+            let width = item.imgElement.width;
+            let height = item.imgElement.height;
+
+            if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(item.imgElement, 0, 0, canvas.width, canvas.height);
+
+            const fontSize = parseInt(item.fontSize, 10);
+            ctx.fillStyle = item.textColor;
+            ctx.strokeStyle = item.strokeColor;
+            ctx.lineWidth = Math.max(3, Math.floor(fontSize / 8));
+            ctx.textAlign = 'center';
+            ctx.font = `900 ${fontSize}px '${item.fontStyle}', sans-serif`;
+            ctx.lineJoin = 'round';
+
+            if (item.topText) {
+                ctx.textBaseline = 'top';
+                ctx.strokeText(item.topText, canvas.width / 2, 16);
+                ctx.fillText(item.topText, canvas.width / 2, 16);
+            }
+
+            if (item.bottomText) {
+                ctx.textBaseline = 'bottom';
+                ctx.strokeText(item.bottomText, canvas.width / 2, canvas.height - 16);
+                ctx.fillText(item.bottomText, canvas.width / 2, canvas.height - 16);
+            }
+        }
+
+        // Update photo properties dynamically
+        window.updateStudioPhotoProp = function(id, key, val) {
+            const item = activeStudioPhotos.find(p => p.id === id);
+            if (item) {
+                item[key] = val;
+                drawStudioCanvas(item);
+            }
+        };
+
+        // Remove single photo from studio batch
+        window.removeStudioPhoto = function(id) {
+            activeStudioPhotos = activeStudioPhotos.filter(p => p.id !== id);
+            renderStudioBatch();
+        };
+
+        // Clear all active studio batch
+        clearUnpublishedBtn.addEventListener('click', () => {
+            if (currentUser?.role !== 'admin') return;
+            activeStudioPhotos = [];
+            renderStudioBatch();
+        });
+
+        // Publish single photo to main gallery
+        window.publishSinglePhoto = function(id) {
+            if (currentUser?.role !== 'admin') return;
+            const item = activeStudioPhotos.find(p => p.id === id);
+            if (!item) return;
+
+            const canvas = document.getElementById(`canvas-${item.id}`);
+            if (!canvas) return;
+
+            const newPost = {
+                id: Date.now() + Math.random(),
+                imageData: canvas.toDataURL('image/png'),
+                author: currentUser.name,
+                topText: item.topText,
+                bottomText: item.bottomText,
+                likes: 0,
+                createdAt: new Date().toLocaleDateString()
+            };
+
+            galleryData.unshift(newPost);
+            saveGalleryData();
+
+            activeStudioPhotos = activeStudioPhotos.filter(p => p.id !== id);
+            renderStudioBatch();
+            renderPublishedGallery();
+        };
+
+        // Publish All Photos in batch
+        publishAllPhotosBtn.addEventListener('click', () => {
+            if (currentUser?.role !== 'admin' || activeStudioPhotos.length === 0) return;
+
+            activeStudioPhotos.forEach((item) => {
+                const canvas = document.getElementById(`canvas-${item.id}`);
+                if (canvas) {
+                    galleryData.unshift({
+                        id: Date.now() + Math.random(),
+                        imageData: canvas.toDataURL('image/png'),
+                        author: currentUser.name,
+                        topText: item.topText,
+                        bottomText: item.bottomText,
+                        likes: 0,
+                        createdAt: new Date().toLocaleDateString()
+                    });
+                }
+            });
+
+            activeStudioPhotos = [];
+            saveGalleryData();
+            renderStudioBatch();
+            renderPublishedGallery();
+
+            window.scrollTo({
+                top: document.getElementById('publishedGalleryGrid').offsetTop - 120,
+                behavior: 'smooth'
+            });
+        });
+
+        function saveGalleryData() {
+            localStorage.setItem('zr_kaizenx_gallery_v2', JSON.stringify(galleryData));
+        }
+
+        // Render Published Gallery
+        function renderPublishedGallery() {
+            publishedGalleryGrid.innerHTML = '';
+            galleryCountBadge.textContent = `${galleryData.length} Photos`;
+
+            if (galleryData.length === 0) {
+                emptyGalleryMsg.classList.remove('hidden');
+                return;
+            } else {
+                emptyGalleryMsg.classList.add('hidden');
+            }
+
+            galleryData.forEach((post) => {
+                const card = document.createElement('div');
+                card.className = 'neu-flat p-5 flex flex-col gap-4 relative';
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-xs font-semibold">
+                        <span class="flex items-center gap-1.5 opacity-80">
+                            <i class="fa-solid fa-circle-user text-blue-500"></i> ${post.author}
+                        </span>
+                        <span class="opacity-50 text-[10px]">${post.createdAt}</span>
+                    </div>
+
+                    <div class="neu-pressed p-2 rounded-xl overflow-hidden flex justify-center items-center">
+                        <img src="${post.imageData}" alt="Zr kaizenX Published Photo" class="w-full h-auto rounded-lg">
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <div class="flex gap-2">
+                            <button onclick="likeGalleryPost('${post.id}')" class="neu-btn px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 text-rose-500">
+                                <i class="fa-solid fa-heart"></i> <span>${post.likes}</span>
+                            </button>
+                            <button onclick="downloadGalleryPost('${post.imageData}', '${post.id}')" class="neu-btn px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 text-blue-500" title="Download Photo">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                        </div>
+
+                        ${currentUser?.role === 'admin' ? `
+                            <button onclick="deleteGalleryPost('${post.id}')" class="neu-btn px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-500 hover:text-white transition-colors flex items-center gap-1" title="Gallery Se Remove Karein (Admin)">
+                                <i class="fa-solid fa-trash-can"></i> Remove
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                publishedGalleryGrid.appendChild(card);
+            });
+        }
+
+        // Like Post
+        window.likeGalleryPost = function(id) {
+            const post = galleryData.find(p => String(p.id) === String(id));
+            if (post) {
+                post.likes += 1;
+                saveGalleryData();
+                renderPublishedGallery();
+            }
+        };
+
+        // Download Post
+        window.downloadGalleryPost = function(dataUrl, id) {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `ZrKaizenX-Photo-${id}.png`;
+            a.click();
+        };
+
+        // Delete Gallery Post (Admin Only)
+        window.deleteGalleryPost = function(id) {
+            if (currentUser?.role !== 'admin') return;
+            galleryData = galleryData.filter(p => String(p.id) !== String(id));
+            saveGalleryData();
+            renderPublishedGallery();
+        };
+
+        // Initialize on page load
+        window.onload = function() {
+            renderPublishedGallery();
+        };
+    </script>
+</body>
+</html>
